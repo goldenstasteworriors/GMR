@@ -42,6 +42,8 @@ data/
 data_record/
 Download/
 assets/body_models/
+amass/
+lafan1/
 
 # Media files
 *.mp4
