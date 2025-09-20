@@ -7,7 +7,7 @@ import numpy as np
 
 from general_motion_retargeting import GeneralMotionRetargeting as GMR
 from general_motion_retargeting import RobotMotionViewer
-from general_motion_retargeting.utils.smpl import load_smplx_file, get_smplx_data_offline_fast
+from general_motion_retargeting.utils.smpl import load_smplx_file, load_amass_file, get_smplx_data_offline_fast
 
 from rich import print
 
@@ -18,14 +18,16 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "--smplx_file",
-        help="SMPLX motion file to load.",
+        help="SMPLX motion file to load (standard format with separate pose_body, root_orient keys).",
         type=str,
-        # required=True,
-        default="/home/yanjieze/projects/g1_wbc/GMR/motion_data/ACCAD/Male1General_c3d/General_A1_-_Stand_stageii.npz",
-        # default="/home/yanjieze/projects/g1_wbc/GMR/motion_data/ACCAD/Male2MartialArtsKicks_c3d/G8_-__roundhouse_left_stageii.npz"
-        # default="/home/yanjieze/projects/g1_wbc/TWIST-dev/motion_data/AMASS/KIT_572_dance_chacha11_stageii.npz"
-        # default="/home/yanjieze/projects/g1_wbc/GMR/motion_data/ACCAD/Male2MartialArtsPunches_c3d/E1_-__Jab_left_stageii.npz",
-        # default="/home/yanjieze/projects/g1_wbc/GMR/motion_data/ACCAD/Male1Running_c3d/Run_C24_-_quick_side_step_left_stageii.npz",
+        default=None,
+    )
+
+    parser.add_argument(
+        "--amass_file",
+        help="AMASS motion file to load (format with combined poses key).",
+        type=str,
+        default=None,
     )
     
     parser.add_argument(
@@ -66,14 +68,27 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
+    # Validate input arguments
+    if args.smplx_file is None and args.amass_file is None:
+        parser.error("Either --smplx_file or --amass_file must be specified")
+    if args.smplx_file is not None and args.amass_file is not None:
+        parser.error("Cannot specify both --smplx_file and --amass_file")
 
     SMPLX_FOLDER = HERE / ".." / "assets" / "body_models"
-    
-    
-    # Load SMPLX trajectory
-    smplx_data, body_model, smplx_output, actual_human_height = load_smplx_file(
-        args.smplx_file, SMPLX_FOLDER
-    )
+
+    # Load motion file based on type
+    if args.smplx_file is not None:
+        print(f"Loading SMPLX file: {args.smplx_file}")
+        smplx_data, body_model, smplx_output, actual_human_height = load_smplx_file(
+            args.smplx_file, SMPLX_FOLDER
+        )
+        input_file = args.smplx_file
+    else:
+        print(f"Loading AMASS file: {args.amass_file}")
+        smplx_data, body_model, smplx_output, actual_human_height = load_amass_file(
+            args.amass_file, SMPLX_FOLDER
+        )
+        input_file = args.amass_file
     
     # align fps
     tgt_fps = 30
@@ -91,7 +106,7 @@ if __name__ == "__main__":
                                             motion_fps=aligned_fps,
                                             transparent_robot=0,
                                             record_video=args.record_video,
-                                            video_path=f"videos/{args.robot}_{args.smplx_file.split('/')[-1].split('.')[0]}.mp4",)
+                                            video_path=f"videos/{args.robot}_{input_file.split('/')[-1].split('.')[0]}.mp4",)
     
 
     curr_frame = 0

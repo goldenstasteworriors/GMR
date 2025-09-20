@@ -41,6 +41,46 @@ def load_smplx_file(smplx_file, smplx_body_model_path):
     return smplx_data, body_model, smplx_output, human_height
 
 
+def load_amass_file(amass_file, smplx_body_model_path):
+    """Load AMASS format NPZ file with combined poses."""
+    amass_data = np.load(amass_file, allow_pickle=True)
+    body_model = smplx.create(
+        smplx_body_model_path,
+        "smplx",
+        gender=str(amass_data["gender"]),
+        use_pca=False,
+    )
+
+    # AMASS format: poses contains [global_orient(3) + body_pose(63) + hand_pose(90)]
+    poses = amass_data["poses"]
+    num_frames = poses.shape[0]
+
+    # Extract different pose components
+    global_orient = poses[:, :3]  # First 3 values
+    body_pose = poses[:, 3:66]    # Next 63 values (21 joints * 3)
+    # Skip hand poses for now, use zeros
+
+    smplx_output = body_model(
+        betas=torch.tensor(amass_data["betas"]).float().view(1, -1), # (16,)
+        global_orient=torch.tensor(global_orient).float(), # (N, 3)
+        body_pose=torch.tensor(body_pose).float(), # (N, 63)
+        transl=torch.tensor(amass_data["trans"]).float(), # (N, 3)
+        left_hand_pose=torch.zeros(num_frames, 45).float(),
+        right_hand_pose=torch.zeros(num_frames, 45).float(),
+        jaw_pose=torch.zeros(num_frames, 3).float(),
+        leye_pose=torch.zeros(num_frames, 3).float(),
+        reye_pose=torch.zeros(num_frames, 3).float(),
+        return_full_pose=True,
+    )
+
+    if len(amass_data["betas"].shape)==1:
+        human_height = 1.66 + 0.1 * amass_data["betas"][0]
+    else:
+        human_height = 1.66 + 0.1 * amass_data["betas"][0, 0]
+
+    return amass_data, body_model, smplx_output, human_height
+
+
 def get_smplx_data(smplx_data, body_model, smplx_output, curr_frame):
     """
     Must return a dictionary with the following structure:
@@ -115,9 +155,22 @@ def get_smplx_data_offline_fast(smplx_data, body_model, smplx_output, tgt_fps=30
         ...
     }
     """
-    src_fps = smplx_data["mocap_frame_rate"].item()
+    # Handle different data formats
+    if "mocap_frame_rate" in smplx_data:
+        src_fps = smplx_data["mocap_frame_rate"].item()
+    elif "mocap_framerate" in smplx_data:
+        src_fps = smplx_data["mocap_framerate"].item()
+    else:
+        src_fps = 30  # Default framerate
+
     frame_skip = int(src_fps / tgt_fps)
-    num_frames = smplx_data["pose_body"].shape[0]
+
+    if "pose_body" in smplx_data:
+        num_frames = smplx_data["pose_body"].shape[0]
+    elif "poses" in smplx_data:
+        num_frames = smplx_data["poses"].shape[0]
+    else:
+        raise ValueError("Unsupported data format: missing pose data")
     global_orient = smplx_output.global_orient.squeeze()
     full_body_pose = smplx_output.full_pose.reshape(num_frames, -1, 3)
     joints = smplx_output.joints.detach().numpy().squeeze()
