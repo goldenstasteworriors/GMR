@@ -20,6 +20,7 @@ ROBOT_XML_DICT = {
     "berkeley_humanoid_lite": ASSET_ROOT / "berkeley_humanoid_lite" / "bhl_scene.xml",
     "booster_k1": ASSET_ROOT / "booster_k1" / "K1_serial.xml",
     "pnd_adam_lite": ASSET_ROOT / "pnd_adam_lite" / "scene.xml",
+    "jingchu01": ASSET_ROOT / "jingchu01" / "jingchu01.mjcf.xml",
 }
 
 IK_CONFIG_DICT = {
@@ -40,6 +41,7 @@ IK_CONFIG_DICT = {
         "berkeley_humanoid_lite": IK_CONFIG_ROOT / "smplx_to_bhl.json",
         "booster_k1": IK_CONFIG_ROOT / "smplx_to_k1.json",
         "pnd_adam_lite": IK_CONFIG_ROOT / "smplx_to_adam.json",
+        "jingchu01": IK_CONFIG_ROOT / "smplx_to_jingchu01.json",
     },
     "bvh":{
         "unitree_g1": IK_CONFIG_ROOT / "bvh_to_g1.json",
@@ -48,6 +50,7 @@ IK_CONFIG_DICT = {
         "fourier_n1": IK_CONFIG_ROOT / "bvh_to_n1.json",
         "stanford_toddy": IK_CONFIG_ROOT / "bvh_to_toddy.json",
         "engineai_pm01": IK_CONFIG_ROOT / "bvh_to_pm01.json",
+        "jingchu01": IK_CONFIG_ROOT / "bvh_to_jingchu01.json",
     },
     "fbx":{
         "unitree_g1": IK_CONFIG_ROOT / "fbx_to_g1.json",
@@ -75,6 +78,7 @@ ROBOT_BASE_DICT = {
     "berkeley_humanoid_lite": "imu_2",
     "booster_k1": "Trunk",
     "pnd_adam_lite": "pelvis",
+    "jingchu01": "Body",
 }
 
 VIEWER_CAM_DISTANCE_DICT = {
@@ -93,4 +97,5 @@ VIEWER_CAM_DISTANCE_DICT = {
     "berkeley_humanoid_lite": 2.0,
     "booster_k1": 2.0,
     "pnd_adam_lite": 3.0,
+    "jingchu01": 2.5,
 }

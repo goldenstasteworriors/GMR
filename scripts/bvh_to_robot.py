@@ -23,7 +23,7 @@ if __name__ == "__main__":
     
     parser.add_argument(
         "--robot",
-        choices=["unitree_g1", "unitree_g1_with_hands", "booster_t1", "stanford_toddy", "fourier_n1", "engineai_pm01"],
+        choices=["unitree_g1", "unitree_g1_with_hands", "booster_t1", "stanford_toddy", "fourier_n1", "engineai_pm01", "jingchu01"],
         default="unitree_g1",
     )
         
@@ -67,10 +67,13 @@ if __name__ == "__main__":
     
     
     # Initialize the retargeting system
+    # Disable velocity limit for jingchu01 due to joint naming mismatch
+    use_velocity_limit = False if args.robot == "jingchu01" else True
     retargeter = GMR(
         src_human="bvh",
         tgt_robot=args.robot,
         actual_human_height=actual_human_height,
+        use_velocity_limit=use_velocity_limit,
     )
 
     motion_fps = 30
