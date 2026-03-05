@@ -136,7 +136,8 @@ class XRobotStreamer:
             raise Exception("Body tracking data is not available!")
     
     def get_processed_body_data(self, use_hands=False):
-
+        
+        #这里body_poses是list of [x, y, z, qx, qy, qz, qw]
         body_poses, body_velocities, body_accelerations, imu_timestamps, body_timestamp = self.get_raw_body_data()
 
         if body_poses is None:
@@ -190,7 +191,7 @@ class XRobotStreamer:
         return body_pose_dict
     
     def get_current_frame(self):
-        body_pose_dict = self.get_processed_body_data()
+        body_pose_dict = self.get_processed_body_data()#body_pose_dict[joint_name] = [pos(xyz), rot(wxyz)]
         left_hand_data = self.get_left_hand_data()
         right_hand_data = self.get_right_hand_data()
         controller_data = self.get_controller_data()
