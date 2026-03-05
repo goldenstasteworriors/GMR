@@ -5,9 +5,9 @@
     "human_height_assumption": 1.75,
     "use_ik_match_table1": true,
     "use_ik_match_table2": false,
-    "anchor_human_root_mode": "xy",
-    "root_translation_fixed": [true, true, true],
-    "root_rotation_mode": "yaw_only",
+    "anchor_human_root_mode": "none",
+    "root_translation_fixed": [false, false, false],
+    "root_rotation_mode": "free",
     "human_scale_table": {
         "pelvis": 1.0,
         "left_shoulder": 1.0,
@@ -20,7 +20,7 @@
     "ik_match_table1": {
         "Robotbase": [
             "pelvis",
-            0,
+            120,
             0,
             [
                 0.0,
@@ -34,42 +34,42 @@
                 0.0
             ]
         ],
-        "left_shoulder_pitch": [
+        "left_shoulder_yaw": [
             "left_shoulder",
-            30,
             0,
+            25,
             [
                 0.0,
                 0.0,
                 0.0
             ],
             [
-                1.0,
+                0.70710678,
                 0.0,
-                0.0,
+                -0.70710678,
                 0.0
             ]
         ],
-        "right_shoulder_pitch": [
+        "right_shoulder_yaw": [
             "right_shoulder",
-            30,
             0,
+            25,
             [
                 0.0,
                 0.0,
                 0.0
             ],
             [
-                1.0,
                 0.0,
+                0.70710678,
                 0.0,
-                0.0
+                0.70710678
             ]
         ],
-        "left_elbow_pitch": [
+        "left_elbow_yaw": [
             "left_elbow",
-            45,
             0,
+            20,
             [
                 0.0,
                 0.0,
@@ -82,26 +82,26 @@
                 0.0
             ]
         ],
-        "right_elbow_pitch": [
+        "right_elbow_yaw": [
             "right_elbow",
-            45,
             0,
+            20,
             [
                 0.0,
                 0.0,
                 0.0
             ],
             [
-                1.0,
                 0.0,
                 0.0,
-                0.0
+                0.0,
+                -1.0
             ]
         ],
         "left_wrist_roll": [
             "left_wrist",
-            80,
             0,
+            15,
             [
                 0.0,
                 0.0,
@@ -116,18 +116,18 @@
         ],
         "right_wrist_roll": [
             "right_wrist",
-            80,
             0,
+            15,
             [
                 0.0,
                 0.0,
                 0.0
             ],
             [
-                1.0,
                 0.0,
                 0.0,
-                0.0
+                0.0,
+                -1.0
             ]
         ]
     },
