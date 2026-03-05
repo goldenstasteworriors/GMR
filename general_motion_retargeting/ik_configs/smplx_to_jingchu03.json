@@ -36,8 +36,8 @@
         ],
         "left_shoulder_pitch": [
             "left_shoulder",
-            30,
             0,
+            30,
             [
                 0.0,
                 0.0,
@@ -52,8 +52,8 @@
         ],
         "right_shoulder_pitch": [
             "right_shoulder",
-            30,
             0,
+            30,
             [
                 0.0,
                 0.0,
@@ -68,8 +68,8 @@
         ],
         "left_elbow_pitch": [
             "left_elbow",
-            45,
             0,
+            45,
             [
                 0.0,
                 0.0,
@@ -84,8 +84,8 @@
         ],
         "right_elbow_pitch": [
             "right_elbow",
-            45,
             0,
+            45,
             [
                 0.0,
                 0.0,
@@ -100,8 +100,8 @@
         ],
         "left_wrist_roll": [
             "left_wrist",
-            80,
             0,
+            80,
             [
                 0.0,
                 0.0,
@@ -116,8 +116,8 @@
         ],
         "right_wrist_roll": [
             "right_wrist",
-            80,
             0,
+            80,
             [
                 0.0,
                 0.0,
