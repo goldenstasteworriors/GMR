@@ -20,7 +20,7 @@
     "ik_match_table1": {
         "Robotbase": [
             "pelvis",
-            0,
+            120,
             0,
             [
                 0.0,
