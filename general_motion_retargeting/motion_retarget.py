@@ -188,7 +188,7 @@ class GeneralMotionRetargeting:
         # Update the task targets
         self.update_targets(human_data, offset_to_ground)
 
-        if self.use_ik_match_table1:
+        if self.use_ik_match_table1 and self.tasks1:
             # Solve the IK problem
             curr_error = self.error1()
             dt = self.configuration.model.opt.timestep
@@ -208,7 +208,7 @@ class GeneralMotionRetargeting:
                 next_error = self.error1()
                 num_iter += 1
 
-        if self.use_ik_match_table2:
+        if self.use_ik_match_table2 and self.tasks2:
             curr_error = self.error2()
             dt = self.configuration.model.opt.timestep
             vel2 = mink.solve_ik(
@@ -235,6 +235,8 @@ class GeneralMotionRetargeting:
 
 
     def error1(self):
+        if not self.tasks1:
+            return 0.0
         return np.linalg.norm(
             np.concatenate(
                 [task.compute_error(self.configuration) for task in self.tasks1]
@@ -242,6 +244,8 @@ class GeneralMotionRetargeting:
         )
     
     def error2(self):
+        if not self.tasks2:
+            return 0.0
         return np.linalg.norm(
             np.concatenate(
                 [task.compute_error(self.configuration) for task in self.tasks2]
