@@ -79,6 +79,19 @@ class GeneralMotionRetargeting:
         self.use_ik_match_table2 = ik_config["use_ik_match_table2"]
         self.human_scale_table = ik_config["human_scale_table"]
         self.ground = ik_config["ground_height"] * np.array([0, 0, 1])
+        self.anchor_human_root_mode = ik_config.get("anchor_human_root_mode", "none")
+        if self.anchor_human_root_mode not in ["none", "xy", "xyz"]:
+            raise ValueError(f"Invalid anchor_human_root_mode: {self.anchor_human_root_mode}")
+
+        self.root_translation_fixed = np.asarray(
+            ik_config.get("root_translation_fixed", [False, False, False]),
+            dtype=bool,
+        )
+        self.root_rotation_mode = ik_config.get("root_rotation_mode", "free")
+        if self.root_rotation_mode not in ["free", "yaw_only"]:
+            raise ValueError(f"Invalid root_rotation_mode: {self.root_rotation_mode}")
+        self._root_reference_initialized = False
+        self._root_pos_reference = np.zeros(3, dtype=np.float64)
 
         self.max_iter = 10
 
@@ -155,6 +168,7 @@ class GeneralMotionRetargeting:
         human_data = self.apply_ground_offset(human_data)
         if offset_to_ground:
             human_data = self.offset_human_data_to_ground(human_data)
+        human_data = self.anchor_human_data_to_root(human_data)
         self.scaled_human_data = human_data
 
         if self.use_ik_match_table1:
@@ -216,6 +230,7 @@ class GeneralMotionRetargeting:
                 num_iter += 1
                 
             
+        self.apply_root_constraints()
         return self.configuration.data.qpos.copy()
 
 
@@ -268,14 +283,17 @@ class GeneralMotionRetargeting:
     def offset_human_data(self, human_data, pos_offsets, rot_offsets):
         """the pos offsets are applied in the local frame"""
         offset_human_data = {}
+        zero_offset = np.zeros(3, dtype=np.float64)
+        identity_rot = R.from_quat([1.0, 0.0, 0.0, 0.0], scalar_first=True)
         for body_name in human_data.keys():
             pos, quat = human_data[body_name]
             offset_human_data[body_name] = [pos, quat]
             # apply rotation offset first
-            updated_quat = (R.from_quat(quat, scalar_first=True) * rot_offsets[body_name]).as_quat(scalar_first=True)
+            rot_offset = rot_offsets.get(body_name, identity_rot)
+            updated_quat = (R.from_quat(quat, scalar_first=True) * rot_offset).as_quat(scalar_first=True)
             offset_human_data[body_name][1] = updated_quat
             
-            local_offset = pos_offsets[body_name]
+            local_offset = pos_offsets.get(body_name, zero_offset)
             # compute the global position offset using the updated rotation
             global_pos_offset = R.from_quat(updated_quat, scalar_first=True).apply(local_offset)
             
@@ -311,3 +329,43 @@ class GeneralMotionRetargeting:
             pos, quat = human_data[body_name]
             human_data[body_name][0] = pos - np.array([0, 0, self.ground_offset])
         return human_data
+
+    def anchor_human_data_to_root(self, human_data):
+        if self.anchor_human_root_mode == "none":
+            return human_data
+
+        root_pos = np.asarray(human_data[self.human_root_name][0], dtype=np.float64)
+        if self.anchor_human_root_mode == "xy":
+            offset = np.array([root_pos[0], root_pos[1], 0.0], dtype=np.float64)
+        else:
+            offset = root_pos.copy()
+
+        anchored_human_data = {}
+        for body_name, (pos, quat) in human_data.items():
+            anchored_human_data[body_name] = [np.asarray(pos, dtype=np.float64) - offset, quat]
+        return anchored_human_data
+
+    def apply_root_constraints(self):
+        if self.root_rotation_mode == "free" and not np.any(self.root_translation_fixed):
+            return
+
+        qpos = self.configuration.data.qpos
+        if qpos.shape[0] < 7:
+            return
+
+        if not self._root_reference_initialized:
+            self._root_pos_reference = qpos[:3].copy()
+            self._root_reference_initialized = True
+
+        for axis_id in range(3):
+            if self.root_translation_fixed[axis_id]:
+                qpos[axis_id] = self._root_pos_reference[axis_id]
+
+        if self.root_rotation_mode == "yaw_only":
+            quat_wxyz = np.asarray(qpos[3:7], dtype=np.float64)
+            quat_xyzw = quat_wxyz[[1, 2, 3, 0]]
+            yaw = R.from_quat(quat_xyzw).as_euler("zyx", degrees=False)[0]
+            yaw_quat_xyzw = R.from_euler("z", yaw, degrees=False).as_quat()
+            yaw_quat_wxyz = yaw_quat_xyzw[[3, 0, 1, 2]]
+            yaw_quat_wxyz = yaw_quat_wxyz / np.linalg.norm(yaw_quat_wxyz)
+            qpos[3:7] = yaw_quat_wxyz
