@@ -22,6 +22,7 @@ ROBOT_XML_DICT = {
     "pnd_adam_lite": ASSET_ROOT / "pnd_adam_lite" / "scene.xml",
     "tienkung": ASSET_ROOT / "tienkung" / "mjcf" / "tienkung.xml",
     "pal_talos": ASSET_ROOT / "pal_talos" / "talos.xml",
+    "jingchu03": ASSET_ROOT / "jingchu03" / "jingchu03_upper_body.xml",
 }
 
 IK_CONFIG_DICT = {
@@ -43,6 +44,7 @@ IK_CONFIG_DICT = {
         "booster_k1": IK_CONFIG_ROOT / "smplx_to_k1.json",
         "pnd_adam_lite": IK_CONFIG_ROOT / "smplx_to_adam.json",
         "tienkung": IK_CONFIG_ROOT / "smplx_to_tienkung.json",
+        "jingchu03": IK_CONFIG_ROOT / "smplx_to_jingchu03.json",
     },
     "bvh_lafan1":{
         "unitree_g1": IK_CONFIG_ROOT / "bvh_lafan1_to_g1.json",
@@ -88,6 +90,7 @@ ROBOT_BASE_DICT = {
     "pnd_adam_lite": "pelvis",
     "tienkung": "Base_link",
     "pal_talos": "base_link",
+    "jingchu03": "Robotbase",
 }
 
 VIEWER_CAM_DISTANCE_DICT = {
@@ -108,4 +111,5 @@ VIEWER_CAM_DISTANCE_DICT = {
     "pnd_adam_lite": 3.0,
     "tienkung": 3.0,
     "pal_talos": 3.0,
+    "jingchu03": 2.0,
 }

@@ -22,8 +22,9 @@ import time
 import psutil
 import tracemalloc
 
+DEFAULT_MIN_AVAILABLE_MEMORY_GB = float(os.environ.get("GMR_MIN_AVAILABLE_MEMORY_GB", "4"))
 
-def check_memory(threshold_gb=30):  # adjust based on your available memory
+def check_memory(threshold_gb=DEFAULT_MIN_AVAILABLE_MEMORY_GB):
     mem = psutil.virtual_memory()
     used_memory_gb = (mem.total - mem.available) / (1024 ** 3)
     available_memory_gb = mem.available / (1024 ** 3)
@@ -80,6 +81,7 @@ def process_file(smplx_file_path, tgt_file_path, tgt_robot, SMPLX_FOLDER, tgt_fo
         src_human="smplx",
         tgt_robot=tgt_robot,
         actual_human_height=actual_human_height,
+        verbose=False,
     )
     qpos_list = []
     for smplx_frame_data in smplx_frame_data_list:

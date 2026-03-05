@@ -1,0 +1,132 @@
+{
+    "robot_root_name": "Robotbase",
+    "human_root_name": "pelvis",
+    "ground_height": 0.0,
+    "human_height_assumption": 1.75,
+    "use_ik_match_table1": true,
+    "use_ik_match_table2": false,
+    "human_scale_table": {
+        "pelvis": 1.0,
+        "left_shoulder": 1.0,
+        "right_shoulder": 1.0,
+        "left_elbow": 1.0,
+        "right_elbow": 1.0,
+        "left_wrist": 1.0,
+        "right_wrist": 1.0
+    },
+    "ik_match_table1": {
+        "Robotbase": [
+            "pelvis",
+            120,
+            0,
+            [
+                0.0,
+                0.0,
+                0.0
+            ],
+            [
+                1.0,
+                0.0,
+                0.0,
+                0.0
+            ]
+        ],
+        "left_shoulder_pitch": [
+            "left_shoulder",
+            30,
+            0,
+            [
+                0.0,
+                0.0,
+                0.0
+            ],
+            [
+                1.0,
+                0.0,
+                0.0,
+                0.0
+            ]
+        ],
+        "right_shoulder_pitch": [
+            "right_shoulder",
+            30,
+            0,
+            [
+                0.0,
+                0.0,
+                0.0
+            ],
+            [
+                1.0,
+                0.0,
+                0.0,
+                0.0
+            ]
+        ],
+        "left_elbow_pitch": [
+            "left_elbow",
+            45,
+            0,
+            [
+                0.0,
+                0.0,
+                0.0
+            ],
+            [
+                1.0,
+                0.0,
+                0.0,
+                0.0
+            ]
+        ],
+        "right_elbow_pitch": [
+            "right_elbow",
+            45,
+            0,
+            [
+                0.0,
+                0.0,
+                0.0
+            ],
+            [
+                1.0,
+                0.0,
+                0.0,
+                0.0
+            ]
+        ],
+        "left_wrist_roll": [
+            "left_wrist",
+            80,
+            0,
+            [
+                0.0,
+                0.0,
+                0.0
+            ],
+            [
+                1.0,
+                0.0,
+                0.0,
+                0.0
+            ]
+        ],
+        "right_wrist_roll": [
+            "right_wrist",
+            80,
+            0,
+            [
+                0.0,
+                0.0,
+                0.0
+            ],
+            [
+                1.0,
+                0.0,
+                0.0,
+                0.0
+            ]
+        ]
+    },
+    "ik_match_table2": {}
+}

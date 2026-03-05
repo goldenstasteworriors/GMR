@@ -1,0 +1,156 @@
+<mujoco model="JingChu01">
+  <compiler angle="radian" meshdir="meshes/" eulerseq="xyz"/>
+  <option timestep="0.001" iterations="50" solver="PGS" gravity="0 0 -9.81"/>
+  <size njmax="500" nconmax="100"/>
+  <default>
+    <joint type="hinge"/>
+    <geom contype="1" conaffinity="2"/>
+  </default>
+
+  <asset>
+    <mesh name="Robotbase" content_type="model/stl" file="Robotbase.STL"/>
+    <mesh name="waist_roll" content_type="model/stl" file="waist_roll.STL"/>
+    <mesh name="waist_yaw" content_type="model/stl" file="waist_yaw.STL"/>
+    <mesh name="left_shoulder_pitch" content_type="model/stl" file="left_shoulder_pitch.STL"/>
+    <mesh name="left_shoulder_roll" content_type="model/stl" file="left_shoulder_roll.STL"/>
+    <mesh name="left_shoulder_yaw" content_type="model/stl" file="left_shoulder_yaw.STL"/>
+    <mesh name="left_elbow_pitch" content_type="model/stl" file="left_elbow_pitch.STL"/>
+    <mesh name="left_elbow_yaw" content_type="model/stl" file="left_elbow_yaw.STL"/>
+    <mesh name="left_wrist_pitch" content_type="model/stl" file="left_wrist_pitch.STL"/>
+    <mesh name="left_wrist_roll" content_type="model/stl" file="left_wrist_roll.STL"/>
+    <mesh name="right_shoulder_pitch" content_type="model/stl" file="right_shoulder_pitch.STL"/>
+    <mesh name="right_shoulder_roll" content_type="model/stl" file="right_shoulder_roll.STL"/>
+    <mesh name="right_shoulder_yaw" content_type="model/stl" file="right_shoulder_yaw.STL"/>
+    <mesh name="right_elbow_pitch" content_type="model/stl" file="right_elbow_pitch.STL"/>
+    <mesh name="right_elbow_yaw" content_type="model/stl" file="right_elbow_yaw.STL"/>
+    <mesh name="right_wrist_pitch" content_type="model/stl" file="right_wrist_pitch.STL"/>
+    <mesh name="right_wrist_roll" content_type="model/stl" file="right_wrist_roll.STL"/>
+    <mesh name="right_gripper" content_type="model/stl" file="right_gripper.STL"/>
+    <mesh name="left_gripper" content_type="model/stl" file="left_gripper.STL"/>
+
+    <texture type="skybox" builtin="gradient" rgb1="1 1 1" rgb2="1 1 1" width="800" height="800"/>
+    <texture type="2d" name="groundplane" builtin="checker" mark="edge" rgb1="1 1 1" rgb2="1 1 1"
+      markrgb="0 0 0" width="300" height="300"/>
+    <material name="groundplane" texture="groundplane" texuniform="true" texrepeat="5 5" reflectance="0"/>
+  </asset>
+
+  <worldbody>
+    <geom name="floor" size="0 0 0.01" type="plane" material="groundplane" contype="2" conaffinity="1"
+      priority="1" friction="1.6" condim="3"/>
+    <light diffuse=".5 .5 .5" pos="0 0 5" dir="0 0 -1" castshadow="true"/>
+
+    <body name="Robotbase">
+      <inertial pos="-0.0984969715325963 -2.9576188750624E-08 0.0140230360249803" mass="7.88191586412788" diaginertia="0.0194788489379514 0.0116319004122176 0.0156518074992374"/>
+      <freejoint name="world_joint"/>
+      <geom type="mesh" rgba="0.752941 0.752941 0.752941 1" mesh="Robotbase"/>
+      <body name="waist_roll" pos="-0.07425 0 0.078">
+      <inertial pos="0.0712014 -1.45146e-07 -0.0107254" quat="-0.000609954 0.709178 0.00060469 0.705028" mass="1.95282" diaginertia="0.00379859 0.00244408 0.00218521"/>
+      <joint name="waist_roll" pos="0 0 0" axis="1 0 0" range="-0.2617 0.2617"/>
+      <geom type="mesh" rgba="0.752941 0.752941 0.752941 1" mesh="waist_roll"/>
+      <body name="waist_yaw" pos="0.076 0 0.021">
+        <inertial pos="0.00718128 -0.00322497 0.294198" quat="0.999945 -0.0028358 0.0100962 -0.000416481" mass="9.79456" diaginertia="0.0522945 0.0374677 0.0344187"/>
+        <joint name="waist_yaw" pos="0 0 0" axis="0 0 1" range="-0.7853 0.7853"/>
+        <geom type="mesh" rgba="0.752941 0.752941 0.752941 1" mesh="waist_yaw"/>
+        <body name="left_shoulder_pitch" pos="0 0.171 0.359" quat="0.707105 0.707108 0 0">
+          <inertial pos="-0.00361279 4.58456e-05 -0.0674209" quat="0.998154 -0.00532468 -0.060495 -0.000434651" mass="1.06138" diaginertia="0.0015489 0.00105917 0.000975089"/>
+          <joint name="left_shoulder_pitch" pos="0 0 0" axis="0 0 1" range="-1.0122 3.1066"/>
+          <geom type="mesh" rgba="0.898039 0.917647 0.929412 1" mesh="left_shoulder_pitch"/>
+          <body name="left_shoulder_roll" pos="0.025 0 -0.075" quat="0.499998 -0.5 0.500002 -0.5">
+            <inertial pos="0.0796721 0.000201524 -0.0192338" quat="0.364214 0.36408 -0.606183 0.606082" mass="0.798717" diaginertia="0.000672008 0.000637035 0.000598489"/>
+            <joint name="left_shoulder_roll" pos="0 0 0" axis="0 0 1" range="-0.0523 2.234"/>
+            <geom type="mesh" rgba="0.898039 0.917647 0.929412 1" mesh="left_shoulder_roll"/>
+            <body name="left_shoulder_yaw" pos="0.123 0 -0.025" quat="0.499998 -0.5 -0.500002 0.5">
+              <inertial pos="-0.00379524 0.000147498 -0.111192" quat="0.999516 -0.000227053 -0.0311 -6.80307e-05" mass="0.844317" diaginertia="0.00117022 0.000980318 0.000550115"/>
+              <joint name="left_shoulder_yaw" pos="0 0 0" axis="0 0 1" range="-1.9722 1.9722"/>
+              <geom type="mesh" rgba="0.898039 0.917647 0.929412 1" mesh="left_shoulder_yaw"/>
+              <body name="left_elbow_pitch" pos="0.028 0 -0.127" quat="0.499998 -0.5 -0.500002 0.5">
+                <inertial pos="4.54792e-09 0.0809518 0.0205266" quat="0.497787 0.502204 -0.502203 0.497786" mass="0.619572" diaginertia="0.000470786 0.000431346 0.000264873"/>
+                <joint name="left_elbow_pitch" pos="0 0 0" axis="0 0 1" range="0 1.7976"/>
+                <geom type="mesh" rgba="0.792157 0.819608 0.933333 1" mesh="left_elbow_pitch"/>
+                <body name="left_elbow_yaw" pos="0 0.12 0.028" quat="-2.59734e-06 2.59735e-06 -0.707108 0.707105">
+                  <inertial pos="1.11932e-07 0.00109732 -0.0170927" quat="0.6323 0.316544 -0.316537 0.632298" mass="0.156175" diaginertia="9.63593e-05 7.84585e-05 6.22637e-05"/>
+                  <joint name="left_elbow_yaw" pos="0 0 0" axis="0 0 1" range="-1.9722 1.9722"/>
+                  <geom type="mesh" rgba="0.866667 0.866667 0.890196 1" mesh="left_elbow_yaw"/>
+                  <body name="left_wrist_pitch" pos="0 -0.0375 -0.046" quat="0.499998 0.5 -0.5 0.500002">
+                    <inertial pos="-0.0345173 0.000173278 -0.0373757" quat="-0.211095 0.694158 -0.174932 0.665569" mass="0.581232" diaginertia="0.000541137 0.000540582 0.000519609"/>
+                    <joint name="left_wrist_pitch" pos="0 0 0" axis="0 0 1" range="-1.047 1.047"/>
+                    <geom type="mesh" rgba="0.866667 0.866667 0.890196 1" mesh="left_wrist_pitch"/>
+                    <body name="left_wrist_roll" pos="-0.068 0.0375 -0.0375" quat="0.499998 0.5 0.5 -0.500002">
+                      <inertial pos="0.00334346 -0.0280747 0.0274746" quat="0.877908 0.408838 0.0195619 -0.248486" mass="0.277572" diaginertia="0.00118417 0.00117139 0.000181145"/>
+                      <joint name="left_wrist_roll" pos="0 0 0" axis="0 0 1" range="-1.047 1.047"/>
+                      <geom type="mesh" rgba="0.866667 0.866667 0.890196 1" mesh="left_wrist_roll"/>
+                      <geom pos="0 -0.09216 0.03725" quat="1 0 0 0" type="mesh" rgba="0.866667 0.866667 0.890196 1" mesh="left_gripper"/>
+                    </body>
+                  </body>
+                </body>
+              </body>
+            </body>
+          </body>
+        </body>
+        <body name="right_shoulder_pitch" pos="0 -0.171 0.359" quat="0.707105 0.707108 0 0">
+          <inertial pos="-0.00347901 0.0001236 0.0672926" quat="0.998066 0.0148109 0.0603574 -0.00119406" mass="1.06675" diaginertia="0.00155393 0.00106048 0.000978856"/>
+          <joint name="right_shoulder_pitch" pos="0 0 0" axis="0 0 1" range="-1.0122 3.1066"/>
+          <geom type="mesh" rgba="0.898039 0.917647 0.929412 1" mesh="right_shoulder_pitch"/>
+          <body name="right_shoulder_roll" pos="0.025 0 0.075" quat="0.499998 0.5 -0.500002 -0.5">
+            <inertial pos="0.0800641 0.000558763 0.0192903" quat="0.607799 0.607464 -0.361805 0.361477" mass="0.806618" diaginertia="0.000672367 0.000637775 0.000599329"/>
+            <joint name="right_shoulder_roll" pos="0 0 0" axis="0 0 1" range="-0.0523 2.234"/>
+            <geom type="mesh" rgba="0.898039 0.917647 0.929412 1" mesh="right_shoulder_roll"/>
+            <body name="right_shoulder_yaw" pos="0.123 0 0.025" quat="0.499998 -0.5 0.500002 -0.5">
+              <inertial pos="0.00351764 -0.000395014 0.1111" quat="0.999517 -0.000599107 -0.0310608 -0.000165522" mass="0.852562" diaginertia="0.00117119 0.000980902 0.000550666"/>
+              <joint name="right_shoulder_yaw" pos="0 0 0" axis="0 0 1" range="-1.9722 1.9722"/>
+              <geom type="mesh" rgba="0.898039 0.917647 0.929412 1" mesh="right_shoulder_yaw"/>
+              <body name="right_elbow_pitch" pos="-0.028 0 0.127" quat="0.499998 0.5 -0.500002 -0.5">
+                <inertial pos="-3.40418e-10 0.0809518 -0.0205266" quat="0.502204 0.497787 -0.497787 0.502204" mass="0.619572" diaginertia="0.000470786 0.000431346 0.000264874"/>
+                <joint name="right_elbow_pitch" pos="0 0 0" axis="0 0 1" range="0 1.7976"/>
+                <geom type="mesh" rgba="0.898039 0.917647 0.929412 1" mesh="right_elbow_pitch"/>
+                <body name="right_elbow_yaw" pos="0 0.12 -0.028" quat="0.707105 -0.707108 0 0">
+                  <inertial pos="-3.46801e-08 -0.000721268 0.0169927" quat="0.631657 0.317816 -0.317819 0.631659" mass="0.160216" diaginertia="9.94647e-05 8.08791e-05 6.38111e-05"/>
+                  <joint name="right_elbow_yaw" pos="0 0 0" axis="0 0 -1" range="-1.9722 1.9722"/>
+                  <geom type="mesh" rgba="0.698039 0.698039 0.698039 1" mesh="right_elbow_yaw"/>
+                  <body name="right_wrist_pitch" pos="0 0.0375 0.046" quat="-2.59734e-06 2.59735e-06 -0.707108 0.707105">
+                    <inertial pos="-0.000173258 -0.0345173 0.0373757" quat="0.321495 0.367288 -0.614459 0.619823" mass="0.581232" diaginertia="0.000541137 0.000540582 0.00051961"/>
+                    <joint name="right_wrist_pitch" pos="0 0 0" axis="0 0 1" range="-1.047 1.047"/>
+                    <geom type="mesh" rgba="1 1 1 1" mesh="right_wrist_pitch"/>
+                    <body name="right_wrist_roll" pos="-0.0375 -0.068 0.0375" quat="-2.59734e-06 0.707105 -2.59735e-06 -0.707108">
+                      <inertial pos="-0.0041798 0.0224923 -0.027741" quat="0.884054 0.422217 -0.0224108 -0.199196" mass="0.250596" diaginertia="0.00103374 0.00101707 0.000165885"/>
+                      <joint name="right_wrist_roll" pos="0 0 0" axis="0 0 1" range="-1.047 1.047"/>
+                      <geom type="mesh" rgba="0.866667 0.866667 0.890196 1" mesh="right_wrist_roll"/>
+                      <geom pos="0 0.08 -0.037" quat="1 0 0 0" type="mesh" rgba="0.866667 0.866667 0.890196 1" mesh="right_gripper"/>
+                    </body>
+                  </body>
+                </body>
+              </body>
+            </body>
+          </body>
+        </body>
+      </body>
+    </body>
+    </body>
+  </worldbody>
+
+  <actuator>
+    <motor name="waist_roll" joint="waist_roll"/>
+    <motor name="waist_yaw" joint="waist_yaw"/>
+    <motor name="left_shoulder_pitch" joint="left_shoulder_pitch"/>
+    <motor name="left_shoulder_roll" joint="left_shoulder_roll"/>
+    <motor name="left_shoulder_yaw" joint="left_shoulder_yaw"/>
+    <motor name="left_elbow_pitch" joint="left_elbow_pitch"/>
+    <motor name="left_elbow_yaw" joint="left_elbow_yaw"/>
+    <motor name="left_wrist_pitch" joint="left_wrist_pitch"/>
+    <motor name="left_wrist_roll" joint="left_wrist_roll"/>
+    <motor name="right_shoulder_pitch" joint="right_shoulder_pitch"/>
+    <motor name="right_shoulder_roll" joint="right_shoulder_roll"/>
+    <motor name="right_shoulder_yaw" joint="right_shoulder_yaw"/>
+    <motor name="right_elbow_pitch" joint="right_elbow_pitch"/>
+    <motor name="right_elbow_yaw" joint="right_elbow_yaw"/>
+    <motor name="right_wrist_pitch" joint="right_wrist_pitch"/>
+    <motor name="right_wrist_roll" joint="right_wrist_roll"/>
+  </actuator>
+
+  <statistic center="0 0 0.8" extent="1.2"/>
+  <visual>
+    <headlight diffuse=".8 .8 .8" ambient=".2 .2 .2" specular="1 1 1"/>
+    <rgba haze="0.15 0.25 0.35 1"/>
+    <global azimuth="-140" elevation="-20"/>
+  </visual>
+</mujoco>
