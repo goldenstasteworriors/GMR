@@ -36,8 +36,8 @@
         ],
         "left_shoulder_pitch": [
             "left_shoulder",
-            0,
             30,
+            0,
             [
                 0.0,
                 0.0,
@@ -52,8 +52,8 @@
         ],
         "right_shoulder_pitch": [
             "right_shoulder",
-            0,
             30,
+            0,
             [
                 0.0,
                 0.0,
@@ -68,8 +68,8 @@
         ],
         "left_elbow_pitch": [
             "left_elbow",
-            0,
             45,
+            0,
             [
                 0.0,
                 0.0,
@@ -84,8 +84,8 @@
         ],
         "right_elbow_pitch": [
             "right_elbow",
-            0,
             45,
+            0,
             [
                 0.0,
                 0.0,
@@ -150,8 +150,8 @@
         ],
         "left_shoulder_pitch": [
             "left_shoulder",
-            0,
             15,
+            0,
             [
                 0.0,
                 0.0,
@@ -166,8 +166,8 @@
         ],
         "right_shoulder_pitch": [
             "right_shoulder",
-            0,
             15,
+            0,
             [
                 0.0,
                 0.0,
@@ -182,8 +182,8 @@
         ],
         "left_elbow_pitch": [
             "left_elbow",
-            0,
             22.5,
+            0,
             [
                 0.0,
                 0.0,
@@ -198,8 +198,8 @@
         ],
         "right_elbow_pitch": [
             "right_elbow",
-            0,
             22.5,
+            0,
             [
                 0.0,
                 0.0,
