@@ -4,7 +4,7 @@
     "ground_height": 0.0,
     "human_height_assumption": 1.75,
     "use_ik_match_table1": true,
-    "use_ik_match_table2": false,
+    "use_ik_match_table2": true,
     "anchor_human_root_mode": "xy",
     "root_translation_fixed": [true, true, true],
     "root_rotation_mode": "yaw_only",
@@ -36,8 +36,8 @@
         ],
         "left_shoulder_pitch": [
             "left_shoulder",
-            30,
             0,
+            30,
             [
                 0.0,
                 0.0,
@@ -52,8 +52,8 @@
         ],
         "right_shoulder_pitch": [
             "right_shoulder",
-            30,
             0,
+            30,
             [
                 0.0,
                 0.0,
@@ -68,8 +68,8 @@
         ],
         "left_elbow_pitch": [
             "left_elbow",
-            45,
             0,
+            45,
             [
                 0.0,
                 0.0,
@@ -84,8 +84,8 @@
         ],
         "right_elbow_pitch": [
             "right_elbow",
-            45,
             0,
+            45,
             [
                 0.0,
                 0.0,
@@ -131,5 +131,118 @@
             ]
         ]
     },
-    "ik_match_table2": {}
+    "ik_match_table2": {
+        "Robotbase": [
+            "pelvis",
+            0,
+            0,
+            [
+                0.0,
+                0.0,
+                0.0
+            ],
+            [
+                1.0,
+                0.0,
+                0.0,
+                0.0
+            ]
+        ],
+        "left_shoulder_pitch": [
+            "left_shoulder",
+            0,
+            15,
+            [
+                0.0,
+                0.0,
+                0.0
+            ],
+            [
+                1.0,
+                0.0,
+                0.0,
+                0.0
+            ]
+        ],
+        "right_shoulder_pitch": [
+            "right_shoulder",
+            0,
+            15,
+            [
+                0.0,
+                0.0,
+                0.0
+            ],
+            [
+                1.0,
+                0.0,
+                0.0,
+                0.0
+            ]
+        ],
+        "left_elbow_pitch": [
+            "left_elbow",
+            0,
+            22.5,
+            [
+                0.0,
+                0.0,
+                0.0
+            ],
+            [
+                1.0,
+                0.0,
+                0.0,
+                0.0
+            ]
+        ],
+        "right_elbow_pitch": [
+            "right_elbow",
+            0,
+            22.5,
+            [
+                0.0,
+                0.0,
+                0.0
+            ],
+            [
+                1.0,
+                0.0,
+                0.0,
+                0.0
+            ]
+        ],
+        "left_wrist_roll": [
+            "left_wrist",
+            40,
+            0,
+            [
+                0.0,
+                0.0,
+                0.0
+            ],
+            [
+                1.0,
+                0.0,
+                0.0,
+                0.0
+            ]
+        ],
+        "right_wrist_roll": [
+            "right_wrist",
+            40,
+            0,
+            [
+                0.0,
+                0.0,
+                0.0
+            ],
+            [
+                1.0,
+                0.0,
+                0.0,
+                0.0
+            ]
+        ]
+    }
 }
