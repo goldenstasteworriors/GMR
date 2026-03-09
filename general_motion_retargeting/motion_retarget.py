@@ -193,7 +193,12 @@ class GeneralMotionRetargeting:
             curr_error = self.error1()
             dt = self.configuration.model.opt.timestep
             vel1 = mink.solve_ik(
-                self.configuration, self.tasks1, dt, self.solver, self.damping, self.ik_limits
+                self.configuration,
+                self.tasks1,
+                dt,
+                self.solver,
+                damping=self.damping,
+                limits=self.ik_limits,
             )
             self.configuration.integrate_inplace(vel1, dt)
             next_error = self.error1()
@@ -202,7 +207,12 @@ class GeneralMotionRetargeting:
                 curr_error = next_error
                 dt = self.configuration.model.opt.timestep
                 vel1 = mink.solve_ik(
-                    self.configuration, self.tasks1, dt, self.solver, self.damping, self.ik_limits
+                    self.configuration,
+                    self.tasks1,
+                    dt,
+                    self.solver,
+                    damping=self.damping,
+                    limits=self.ik_limits,
                 )
                 self.configuration.integrate_inplace(vel1, dt)
                 next_error = self.error1()
@@ -212,7 +222,12 @@ class GeneralMotionRetargeting:
             curr_error = self.error2()
             dt = self.configuration.model.opt.timestep
             vel2 = mink.solve_ik(
-                self.configuration, self.tasks2, dt, self.solver, self.damping, self.ik_limits
+                self.configuration,
+                self.tasks2,
+                dt,
+                self.solver,
+                damping=self.damping,
+                limits=self.ik_limits,
             )
             self.configuration.integrate_inplace(vel2, dt)
             next_error = self.error2()
@@ -222,7 +237,12 @@ class GeneralMotionRetargeting:
                 # Solve the IK problem with the second task
                 dt = self.configuration.model.opt.timestep
                 vel2 = mink.solve_ik(
-                    self.configuration, self.tasks2, dt, self.solver, self.damping, self.ik_limits
+                    self.configuration,
+                    self.tasks2,
+                    dt,
+                    self.solver,
+                    damping=self.damping,
+                    limits=self.ik_limits,
                 )
                 self.configuration.integrate_inplace(vel2, dt)
                 

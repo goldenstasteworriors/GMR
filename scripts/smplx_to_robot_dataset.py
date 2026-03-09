@@ -84,8 +84,15 @@ def process_file(smplx_file_path, tgt_file_path, tgt_robot, SMPLX_FOLDER, tgt_fo
         verbose=False,
     )
     qpos_list = []
-    for smplx_frame_data in smplx_frame_data_list:
-        qpos = retargeter.retarget(smplx_frame_data)
+    for frame_idx, smplx_frame_data in enumerate(smplx_frame_data_list):
+        try:
+            qpos = retargeter.retarget(smplx_frame_data)
+        except Exception as e:
+            print(
+                f"Error retargeting {smplx_file_path} at frame {frame_idx}: "
+                f"{type(e).__name__}: {e}"
+            )
+            return
         qpos_list.append(qpos.copy())
 
     qpos_list = np.array(qpos_list)
