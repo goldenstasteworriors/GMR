@@ -1,4 +1,5 @@
 import argparse
+import multiprocessing as mp
 import pathlib
 import pickle
 import traceback
@@ -103,6 +104,10 @@ def retarget_one_file(
         return "error", smplx_file, tgt_file, traceback.format_exc()
 
 
+def retarget_one_file_worker(task):
+    return retarget_one_file(*task)
+
+
 def main():
     parser = argparse.ArgumentParser(
         description="Batch retarget SMPL-X motions to jingchu03 without visualization."
@@ -111,6 +116,12 @@ def main():
     parser.add_argument("--tgt_folder", type=str, required=True, help="Output PKL root folder.")
     parser.add_argument("--tgt_fps", type=int, default=30, help="Target fps.")
     parser.add_argument("--override", action="store_true", help="Overwrite existing outputs.")
+    parser.add_argument(
+        "--num_cpus",
+        type=int,
+        default=min(4, mp.cpu_count()),
+        help="Number of worker processes for file-level parallel retargeting.",
+    )
     parser.add_argument(
         "--max_files",
         type=int,
@@ -129,23 +140,41 @@ def main():
     print(f"[cyan]Found {len(files)} files[/cyan] under {src_folder}")
     if len(files) == 0:
         return
+    print(f"[cyan]Using {args.num_cpus} worker process(es)[/cyan]")
 
     ok_count, skip_count, err_count = 0, 0, 0
-    for smplx_file in tqdm(files, desc="Retarget jingchu03"):
-        status, src, dst, msg = retarget_one_file(
-            smplx_file=smplx_file,
-            src_folder=src_folder,
-            tgt_folder=tgt_folder,
-            tgt_fps=args.tgt_fps,
-            override=args.override,
+    tasks = [
+        (smplx_file, src_folder, tgt_folder, args.tgt_fps, args.override)
+        for smplx_file in files
+    ]
+
+    if args.num_cpus <= 1:
+        result_iter = (
+            retarget_one_file_worker(task)
+            for task in tqdm(tasks, desc="Retarget jingchu03")
         )
-        if status == "ok":
-            ok_count += 1
-        elif status == "skip":
-            skip_count += 1
-        else:
-            err_count += 1
-            print(f"[red]Error[/red] {src} -> {dst}\n{msg}")
+    else:
+        ctx = mp.get_context("spawn")
+        pool = ctx.Pool(processes=args.num_cpus)
+        result_iter = tqdm(
+            pool.imap_unordered(retarget_one_file_worker, tasks),
+            total=len(tasks),
+            desc="Retarget jingchu03",
+        )
+
+    try:
+        for status, src, dst, msg in result_iter:
+            if status == "ok":
+                ok_count += 1
+            elif status == "skip":
+                skip_count += 1
+            else:
+                err_count += 1
+                print(f"[red]Error[/red] {src} -> {dst}\n{msg}")
+    finally:
+        if args.num_cpus > 1:
+            pool.close()
+            pool.join()
 
     print(
         f"[green]Done[/green] ok={ok_count}, skip={skip_count}, error={err_count}, "
