@@ -87,11 +87,48 @@ class GeneralMotionRetargeting:
             ik_config.get("root_translation_fixed", [False, False, False]),
             dtype=bool,
         )
+        root_translation_target = ik_config.get("root_translation_target")
+        self.root_translation_target = None
+        if root_translation_target is not None:
+            self.root_translation_target = np.asarray(
+                root_translation_target, dtype=np.float64
+            )
+            if self.root_translation_target.shape != (3,):
+                raise ValueError(
+                    "root_translation_target must be a length-3 array if provided"
+                )
         self.root_rotation_mode = ik_config.get("root_rotation_mode", "free")
-        if self.root_rotation_mode not in ["free", "yaw_only"]:
+        if self.root_rotation_mode not in ["free", "yaw_only", "fixed"]:
             raise ValueError(f"Invalid root_rotation_mode: {self.root_rotation_mode}")
+        root_rotation_target = ik_config.get("root_rotation_target", [1.0, 0.0, 0.0, 0.0])
+        self.root_rotation_target = np.asarray(root_rotation_target, dtype=np.float64)
+        if self.root_rotation_target.shape != (4,):
+            raise ValueError("root_rotation_target must be a length-4 quaternion")
+        self.root_rotation_target = self.root_rotation_target / np.linalg.norm(
+            self.root_rotation_target
+        )
         self._root_reference_initialized = False
         self._root_pos_reference = np.zeros(3, dtype=np.float64)
+        self.fixed_joint_positions = {
+            joint_name: float(joint_pos)
+            for joint_name, joint_pos in ik_config.get("fixed_joint_positions", {}).items()
+        }
+        self.fixed_joint_qpos_indices = {}
+        for joint_name, joint_pos in self.fixed_joint_positions.items():
+            joint_id = mj.mj_name2id(self.model, mj.mjtObj.mjOBJ_JOINT, joint_name)
+            if joint_id == -1:
+                raise ValueError(f"Unknown fixed joint name: {joint_name}")
+            qpos_adr = self.model.jnt_qposadr[joint_id]
+            next_qpos_adr = (
+                self.model.jnt_qposadr[joint_id + 1]
+                if joint_id + 1 < self.model.njnt
+                else self.model.nq
+            )
+            if next_qpos_adr - qpos_adr != 1:
+                raise ValueError(
+                    f"Only 1-DoF joints can be fixed, but got {joint_name}"
+                )
+            self.fixed_joint_qpos_indices[joint_name] = qpos_adr
 
         self.max_iter = 10
 
@@ -370,26 +407,42 @@ class GeneralMotionRetargeting:
         return anchored_human_data
 
     def apply_root_constraints(self):
-        if self.root_rotation_mode == "free" and not np.any(self.root_translation_fixed):
+        if (
+            self.root_rotation_mode == "free"
+            and not np.any(self.root_translation_fixed)
+            and not self.fixed_joint_positions
+        ):
             return
 
         qpos = self.configuration.data.qpos
-        if qpos.shape[0] < 7:
-            return
+        if qpos.shape[0] >= 7:
+            if (
+                np.any(self.root_translation_fixed)
+                and self.root_translation_target is None
+                and not self._root_reference_initialized
+            ):
+                self._root_pos_reference = qpos[:3].copy()
+                self._root_reference_initialized = True
 
-        if not self._root_reference_initialized:
-            self._root_pos_reference = qpos[:3].copy()
-            self._root_reference_initialized = True
+            root_translation_target = (
+                self.root_translation_target
+                if self.root_translation_target is not None
+                else self._root_pos_reference
+            )
+            for axis_id in range(3):
+                if self.root_translation_fixed[axis_id]:
+                    qpos[axis_id] = root_translation_target[axis_id]
 
-        for axis_id in range(3):
-            if self.root_translation_fixed[axis_id]:
-                qpos[axis_id] = self._root_pos_reference[axis_id]
+            if self.root_rotation_mode == "yaw_only":
+                quat_wxyz = np.asarray(qpos[3:7], dtype=np.float64)
+                quat_xyzw = quat_wxyz[[1, 2, 3, 0]]
+                yaw = R.from_quat(quat_xyzw).as_euler("zyx", degrees=False)[0]
+                yaw_quat_xyzw = R.from_euler("z", yaw, degrees=False).as_quat()
+                yaw_quat_wxyz = yaw_quat_xyzw[[3, 0, 1, 2]]
+                yaw_quat_wxyz = yaw_quat_wxyz / np.linalg.norm(yaw_quat_wxyz)
+                qpos[3:7] = yaw_quat_wxyz
+            elif self.root_rotation_mode == "fixed":
+                qpos[3:7] = self.root_rotation_target
 
-        if self.root_rotation_mode == "yaw_only":
-            quat_wxyz = np.asarray(qpos[3:7], dtype=np.float64)
-            quat_xyzw = quat_wxyz[[1, 2, 3, 0]]
-            yaw = R.from_quat(quat_xyzw).as_euler("zyx", degrees=False)[0]
-            yaw_quat_xyzw = R.from_euler("z", yaw, degrees=False).as_quat()
-            yaw_quat_wxyz = yaw_quat_xyzw[[3, 0, 1, 2]]
-            yaw_quat_wxyz = yaw_quat_wxyz / np.linalg.norm(yaw_quat_wxyz)
-            qpos[3:7] = yaw_quat_wxyz
+        for joint_name, qpos_idx in self.fixed_joint_qpos_indices.items():
+            qpos[qpos_idx] = self.fixed_joint_positions[joint_name]

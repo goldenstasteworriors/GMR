@@ -7,7 +7,12 @@
     "use_ik_match_table2": true,
     "anchor_human_root_mode": "xy",
     "root_translation_fixed": [true, true, true],
-    "root_rotation_mode": "yaw_only",
+    "root_translation_target": [0.0, 0.0, 0.0],
+    "root_rotation_mode": "fixed",
+    "root_rotation_target": [1.0, 0.0, 0.0, 0.0],
+    "fixed_joint_positions": {
+        "waist_roll": 0.0
+    },
     "human_scale_table": {
         "pelvis": 1.0,
         "left_shoulder": 1.0,
