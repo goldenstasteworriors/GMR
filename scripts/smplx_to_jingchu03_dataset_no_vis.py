@@ -4,10 +4,12 @@ import pickle
 import traceback
 
 import numpy as np
+import torch
 from rich import print
 from tqdm import tqdm
 
 from general_motion_retargeting import GeneralMotionRetargeting as GMR
+from general_motion_retargeting.kinematics_model import KinematicsModel
 from general_motion_retargeting.utils.smpl import (
     get_smplx_data_offline_fast,
     load_smplx_file,
@@ -16,6 +18,24 @@ from general_motion_retargeting.utils.smpl import (
 
 HERE = pathlib.Path(__file__).parent
 SMPLX_FOLDER = HERE / ".." / "assets" / "body_models"
+
+
+def build_local_body_pos(retargeter: GMR, dof_pos: np.ndarray):
+    device = "cuda:0" if torch.cuda.is_available() else "cpu"
+    kinematics_model = KinematicsModel(retargeter.xml_file, device=device)
+    num_frames = dof_pos.shape[0]
+
+    fk_root_pos = torch.zeros((num_frames, 3), device=device)
+    fk_root_rot = torch.zeros((num_frames, 4), device=device)
+    fk_root_rot[:, -1] = 1.0
+
+    dof_pos_tensor = torch.from_numpy(dof_pos).to(device=device, dtype=torch.float)
+    local_body_pos, _ = kinematics_model.forward_kinematics(
+        fk_root_pos,
+        fk_root_rot,
+        dof_pos_tensor,
+    )
+    return local_body_pos.detach().cpu().numpy(), kinematics_model.body_names
 
 
 def collect_smplx_files(src_folder: pathlib.Path):
@@ -64,14 +84,15 @@ def retarget_one_file(
         root_pos = qpos_arr[:, :3]
         root_rot = qpos_arr[:, 3:7][:, [1, 2, 3, 0]]  # wxyz -> xyzw
         dof_pos = qpos_arr[:, 7:]
+        local_body_pos, body_names = build_local_body_pos(retargeter, dof_pos)
 
         motion_data = {
             "fps": aligned_fps,
             "root_pos": root_pos,
             "root_rot": root_rot,
             "dof_pos": dof_pos,
-            "local_body_pos": None,
-            "link_body_list": None,
+            "local_body_pos": local_body_pos,
+            "link_body_list": body_names,
         }
 
         with open(tgt_file, "wb") as f:
