@@ -42,6 +42,10 @@ def play_motion(
     anchor_mode="none",
     freeze_root_xy=False,
     dry_run=False,
+    highlight_joint_limits=False,
+    joint_limit_warning_ratio=0.15,
+    joint_limit_danger_ratio=0.05,
+    joint_limit_show_labels=True,
 ):
     print(
         f"[cyan]Start[/cyan] robot={robot}, anchor_mode={anchor_mode}, "
@@ -60,6 +64,10 @@ def play_motion(
             motion_fps=fps,
             transparent_robot=0,
             record_video=False,
+            highlight_joint_limits=highlight_joint_limits,
+            joint_limit_warning_ratio=joint_limit_warning_ratio,
+            joint_limit_danger_ratio=joint_limit_danger_ratio,
+            joint_limit_show_labels=joint_limit_show_labels,
         )
 
     root_xy_ref = None
@@ -138,6 +146,30 @@ def main():
         default=False,
         help="Run retargeting without visualization.",
     )
+    parser.add_argument(
+        "--highlight_joint_limits",
+        action=argparse.BooleanOptionalAction,
+        default=False,
+        help="Highlight joints that are close to their motion limits.",
+    )
+    parser.add_argument(
+        "--joint_limit_warning_ratio",
+        type=float,
+        default=0.15,
+        help="Warn when remaining distance to a joint limit is below this fraction of the joint range.",
+    )
+    parser.add_argument(
+        "--joint_limit_danger_ratio",
+        type=float,
+        default=0.05,
+        help="Mark as danger when remaining distance to a joint limit is below this fraction of the joint range.",
+    )
+    parser.add_argument(
+        "--joint_limit_show_labels",
+        action=argparse.BooleanOptionalAction,
+        default=True,
+        help="Show joint names next to limit markers.",
+    )
     args = parser.parse_args()
 
     smplx_folder = here / ".." / "assets" / "body_models"
@@ -157,6 +189,10 @@ def main():
         anchor_mode="none",
         freeze_root_xy=False,
         dry_run=args.dry_run,
+        highlight_joint_limits=args.highlight_joint_limits,
+        joint_limit_warning_ratio=args.joint_limit_warning_ratio,
+        joint_limit_danger_ratio=args.joint_limit_danger_ratio,
+        joint_limit_show_labels=args.joint_limit_show_labels,
     )
 
     time.sleep(max(args.pause_between, 0.0))
@@ -170,6 +206,10 @@ def main():
         anchor_mode=args.anchor_mode_second,
         freeze_root_xy=args.freeze_root_xy_second,
         dry_run=args.dry_run,
+        highlight_joint_limits=args.highlight_joint_limits,
+        joint_limit_warning_ratio=args.joint_limit_warning_ratio,
+        joint_limit_danger_ratio=args.joint_limit_danger_ratio,
+        joint_limit_show_labels=args.joint_limit_show_labels,
     )
 
 

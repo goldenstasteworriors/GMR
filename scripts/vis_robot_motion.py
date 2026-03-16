@@ -12,6 +12,30 @@ if __name__ == "__main__":
     parser.add_argument("--record_video", action="store_true")
     parser.add_argument("--video_path", type=str, 
                         default="videos/example.mp4")
+    parser.add_argument(
+        "--highlight_joint_limits",
+        action=argparse.BooleanOptionalAction,
+        default=False,
+        help="Highlight joints that are close to their motion limits.",
+    )
+    parser.add_argument(
+        "--joint_limit_warning_ratio",
+        type=float,
+        default=0.15,
+        help="Warn when remaining distance to a joint limit is below this fraction of the joint range.",
+    )
+    parser.add_argument(
+        "--joint_limit_danger_ratio",
+        type=float,
+        default=0.05,
+        help="Mark as danger when remaining distance to a joint limit is below this fraction of the joint range.",
+    )
+    parser.add_argument(
+        "--joint_limit_show_labels",
+        action=argparse.BooleanOptionalAction,
+        default=True,
+        help="Show joint names next to limit markers.",
+    )
                         
     args = parser.parse_args()
     
@@ -26,7 +50,12 @@ if __name__ == "__main__":
     env = RobotMotionViewer(robot_type=robot_type,
                             motion_fps=motion_fps,
                             camera_follow=False,
-                            record_video=args.record_video, video_path=args.video_path)
+                            record_video=args.record_video,
+                            video_path=args.video_path,
+                            highlight_joint_limits=args.highlight_joint_limits,
+                            joint_limit_warning_ratio=args.joint_limit_warning_ratio,
+                            joint_limit_danger_ratio=args.joint_limit_danger_ratio,
+                            joint_limit_show_labels=args.joint_limit_show_labels)
     
     frame_idx = 0
     while True:
