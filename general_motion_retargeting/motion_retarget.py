@@ -80,8 +80,21 @@ class GeneralMotionRetargeting:
         self.human_scale_table = ik_config["human_scale_table"]
         self.ground = ik_config["ground_height"] * np.array([0, 0, 1])
         self.anchor_human_root_mode = ik_config.get("anchor_human_root_mode", "none")
-        if self.anchor_human_root_mode not in ["none", "xy", "xyz"]:
+        if self.anchor_human_root_mode not in ["none", "xy", "xyz", "xy_heading", "xyz_heading"]:
             raise ValueError(f"Invalid anchor_human_root_mode: {self.anchor_human_root_mode}")
+        self.anchor_human_heading_source = ik_config.get(
+            "anchor_human_heading_source", "root"
+        )
+        if self.anchor_human_heading_source not in ["root", "shoulders"]:
+            raise ValueError(
+                f"Invalid anchor_human_heading_source: {self.anchor_human_heading_source}"
+            )
+        self.anchor_heading_left_name = ik_config.get(
+            "anchor_human_heading_left_name", "left_shoulder"
+        )
+        self.anchor_heading_right_name = ik_config.get(
+            "anchor_human_heading_right_name", "right_shoulder"
+        )
 
         self.root_translation_fixed = np.asarray(
             ik_config.get("root_translation_fixed", [False, False, False]),
@@ -113,6 +126,10 @@ class GeneralMotionRetargeting:
             joint_name: float(joint_pos)
             for joint_name, joint_pos in ik_config.get("fixed_joint_positions", {}).items()
         }
+        self.ik_locked_joint_positions = {
+            joint_name: float(joint_pos)
+            for joint_name, joint_pos in ik_config.get("ik_locked_joint_positions", {}).items()
+        }
         self.fixed_joint_qpos_indices = {}
         for joint_name, joint_pos in self.fixed_joint_positions.items():
             joint_id = mj.mj_name2id(self.model, mj.mjtObj.mjOBJ_JOINT, joint_name)
@@ -129,6 +146,28 @@ class GeneralMotionRetargeting:
                     f"Only 1-DoF joints can be fixed, but got {joint_name}"
                 )
             self.fixed_joint_qpos_indices[joint_name] = qpos_adr
+
+        self.ik_locked_joint_qpos_indices = {}
+        for joint_name, joint_pos in self.ik_locked_joint_positions.items():
+            joint_id = mj.mj_name2id(self.model, mj.mjtObj.mjOBJ_JOINT, joint_name)
+            if joint_id == -1:
+                raise ValueError(f"Unknown IK-locked joint name: {joint_name}")
+            qpos_adr = self.model.jnt_qposadr[joint_id]
+            next_qpos_adr = (
+                self.model.jnt_qposadr[joint_id + 1]
+                if joint_id + 1 < self.model.njnt
+                else self.model.nq
+            )
+            if next_qpos_adr - qpos_adr != 1:
+                raise ValueError(
+                    f"Only 1-DoF joints can be IK-locked, but got {joint_name}"
+                )
+
+            self.model.jnt_limited[joint_id] = 1
+            self.model.jnt_range[joint_id, 0] = joint_pos
+            self.model.jnt_range[joint_id, 1] = joint_pos
+            self.model.qpos0[qpos_adr] = joint_pos
+            self.ik_locked_joint_qpos_indices[joint_name] = qpos_adr
 
         self.max_iter = 10
 
@@ -396,14 +435,46 @@ class GeneralMotionRetargeting:
             return human_data
 
         root_pos = np.asarray(human_data[self.human_root_name][0], dtype=np.float64)
-        if self.anchor_human_root_mode == "xy":
+        if self.anchor_human_root_mode in ["xy", "xy_heading"]:
             offset = np.array([root_pos[0], root_pos[1], 0.0], dtype=np.float64)
         else:
             offset = root_pos.copy()
 
+        heading_inv = None
+        if self.anchor_human_root_mode.endswith("_heading"):
+            if self.anchor_human_heading_source == "root":
+                root_quat = np.asarray(
+                    human_data[self.human_root_name][1], dtype=np.float64
+                )
+                root_rot = R.from_quat(root_quat, scalar_first=True)
+                root_yaw = root_rot.as_euler("zyx", degrees=False)[0]
+                heading_inv = R.from_euler("z", -root_yaw, degrees=False)
+            else:
+                left_pos = np.asarray(
+                    human_data[self.anchor_heading_left_name][0], dtype=np.float64
+                )
+                right_pos = np.asarray(
+                    human_data[self.anchor_heading_right_name][0], dtype=np.float64
+                )
+                shoulder_vec = left_pos - right_pos
+                shoulder_vec[2] = 0.0
+                shoulder_norm = np.linalg.norm(shoulder_vec[:2])
+                if shoulder_norm > 1e-8:
+                    shoulder_vec = shoulder_vec / shoulder_norm
+                    forward_vec = np.cross(shoulder_vec, np.array([0.0, 0.0, 1.0]))
+                    heading_yaw = np.arctan2(forward_vec[1], forward_vec[0])
+                    heading_inv = R.from_euler("z", -heading_yaw, degrees=False)
+
         anchored_human_data = {}
         for body_name, (pos, quat) in human_data.items():
-            anchored_human_data[body_name] = [np.asarray(pos, dtype=np.float64) - offset, quat]
+            anchored_pos = np.asarray(pos, dtype=np.float64) - offset
+            anchored_quat = np.asarray(quat, dtype=np.float64)
+            if heading_inv is not None:
+                anchored_pos = heading_inv.apply(anchored_pos)
+                anchored_quat = (
+                    heading_inv * R.from_quat(anchored_quat, scalar_first=True)
+                ).as_quat(scalar_first=True)
+            anchored_human_data[body_name] = [anchored_pos, anchored_quat]
         return anchored_human_data
 
     def apply_root_constraints(self):
@@ -411,6 +482,7 @@ class GeneralMotionRetargeting:
             self.root_rotation_mode == "free"
             and not np.any(self.root_translation_fixed)
             and not self.fixed_joint_positions
+            and not self.ik_locked_joint_positions
         ):
             return
 
@@ -446,3 +518,5 @@ class GeneralMotionRetargeting:
 
         for joint_name, qpos_idx in self.fixed_joint_qpos_indices.items():
             qpos[qpos_idx] = self.fixed_joint_positions[joint_name]
+        for joint_name, qpos_idx in self.ik_locked_joint_qpos_indices.items():
+            qpos[qpos_idx] = self.ik_locked_joint_positions[joint_name]
