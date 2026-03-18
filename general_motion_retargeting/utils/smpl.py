@@ -7,18 +7,25 @@ from scipy.interpolate import interp1d
 
 import general_motion_retargeting.utils.lafan_vendor.utils as utils
 
+
+_SMPLX_BODY_MODEL_CACHE = {}
+
 def load_smpl_file(smpl_file):
     smpl_data = np.load(smpl_file, allow_pickle=True)
     return smpl_data
 
 def load_smplx_file(smplx_file, smplx_body_model_path):
     smplx_data = np.load(smplx_file, allow_pickle=True)
-    body_model = smplx.create(
-        smplx_body_model_path,
-        "smplx",
-        gender=str(smplx_data["gender"]),
-        use_pca=False,
-    )
+    body_model_key = (str(smplx_body_model_path), str(smplx_data["gender"]))
+    body_model = _SMPLX_BODY_MODEL_CACHE.get(body_model_key)
+    if body_model is None:
+        body_model = smplx.create(
+            smplx_body_model_path,
+            "smplx",
+            gender=str(smplx_data["gender"]),
+            use_pca=False,
+        )
+        _SMPLX_BODY_MODEL_CACHE[body_model_key] = body_model
     # print(smplx_data["pose_body"].shape)
     # print(smplx_data["betas"].shape)
     # print(smplx_data["root_orient"].shape)

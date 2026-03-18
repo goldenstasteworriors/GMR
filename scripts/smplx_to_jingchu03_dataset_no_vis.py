@@ -19,11 +19,16 @@ from general_motion_retargeting.utils.smpl import (
 
 HERE = pathlib.Path(__file__).parent
 SMPLX_FOLDER = HERE / ".." / "assets" / "body_models"
+_KINEMATICS_MODEL_CACHE = {}
 
 
 def build_local_body_pos(retargeter: GMR, dof_pos: np.ndarray):
     device = "cuda:0" if torch.cuda.is_available() else "cpu"
-    kinematics_model = KinematicsModel(retargeter.xml_file, device=device)
+    cache_key = (retargeter.xml_file, device)
+    kinematics_model = _KINEMATICS_MODEL_CACHE.get(cache_key)
+    if kinematics_model is None:
+        kinematics_model = KinematicsModel(retargeter.xml_file, device=device)
+        _KINEMATICS_MODEL_CACHE[cache_key] = kinematics_model
     num_frames = dof_pos.shape[0]
 
     fk_root_pos = torch.zeros((num_frames, 3), device=device)
