@@ -28,7 +28,8 @@ class GeneralMotionRetargeting:
         self.model = mj.MjModel.from_xml_path(self.xml_file)
         
         # Print DoF names in order
-        print("[GMR] Robot Degrees of Freedom (DoF) names and their order:")
+        if verbose:
+            print("[GMR] Robot Degrees of Freedom (DoF) names and their order:")
         self.robot_dof_names = {}
         for i in range(self.model.nv):  # 'nv' is the number of DoFs
             dof_name = mj.mj_id2name(self.model, mj.mjtObj.mjOBJ_JOINT, self.model.dof_jntid[i])
@@ -37,7 +38,8 @@ class GeneralMotionRetargeting:
                 print(f"DoF {i}: {dof_name}")
             
             
-        print("[GMR] Robot Body names and their IDs:")
+        if verbose:
+            print("[GMR] Robot Body names and their IDs:")
         self.robot_body_names = {}
         for i in range(self.model.nbody):  # 'nbody' is the number of bodies
             body_name = mj.mj_id2name(self.model, mj.mjtObj.mjOBJ_BODY, i)
@@ -45,7 +47,8 @@ class GeneralMotionRetargeting:
             if verbose:
                 print(f"Body ID {i}: {body_name}")
         
-        print("[GMR] Robot Motor (Actuator) names and their IDs:")
+        if verbose:
+            print("[GMR] Robot Motor (Actuator) names and their IDs:")
         self.robot_motor_names = {}
         for i in range(self.model.nu):  # 'nu' is the number of actuators (motors)
             motor_name = mj.mj_id2name(self.model, mj.mjtObj.mjOBJ_ACTUATOR, i)
