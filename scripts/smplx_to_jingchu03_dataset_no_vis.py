@@ -160,7 +160,7 @@ def main():
         )
     else:
         ctx = mp.get_context("spawn")
-        pool = ctx.Pool(processes=args.num_cpus)
+        pool = ctx.Pool(processes=args.num_cpus, maxtasksperchild=1)
         result_iter = tqdm(
             pool.imap_unordered(retarget_one_file_worker, tasks),
             total=len(tasks),
